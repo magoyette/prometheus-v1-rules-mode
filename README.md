@@ -22,6 +22,12 @@ Basic code completion is available with [company](http://company-mode.github.io/
 
 Syntax checking with [promtool](https://github.com/prometheus/prometheus/tree/master/cmd/promtool) will be activated as a [Flycheck](http://www.flycheck.org) checker if promtool is found by Emacs.
 
+promtool needs to be installed first.
+
+```shell
+go get github.com/prometheus/prometheus/cmd/promtool
+```
+
 It might be necessary to add the path to promtool in the Emacs exec-path.
 
 ```elisp
