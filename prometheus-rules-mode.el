@@ -56,7 +56,7 @@
 
 (require 'flycheck)
 (require 'company)
-(require 'cl)
+(require 'cl-lib)
 
 (defconst prometheus-rules-mode--syntax-table
   (let ((table (make-syntax-table)))
@@ -181,12 +181,12 @@
 (defun prometheus-rules-company-backend (command &optional arg &rest ignored)
   (interactive (list 'interactive))
 
-  (case command
+  (cl-case command
     (interactive (company-begin-backend 'prometheus-rules-company-backend))
     (prefix (and (eq major-mode 'prometheus-rules-mode)
                  (company-grab-symbol)))
     (candidates
-     (remove-if-not
+     (cl-remove-if-not
       (lambda (c) (string-prefix-p arg c))
       prometheus-rules-mode--keywords))))
 
