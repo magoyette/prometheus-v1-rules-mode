@@ -2,7 +2,10 @@
 
 prometheus-rules-mode is an Emacs major mode for [Prometheus](https://prometheus.io/) rules.
 
-prometheus-rules-mode is still under development and might not be stable.
+This mode has been archived, since
+[Prometheus 2.0 rules have been changed to YAML](https://prometheus.io/docs/prometheus/latest/migration/#recording-rules-and-alerts).
+
+The development of prometheus-rules-mode has been interrupted and the mode might no longer be stable.
 
 ## Configuration
 
