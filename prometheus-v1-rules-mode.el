@@ -1,11 +1,11 @@
-;;; prometheus-rules-mode.el --- Major mode for Prometheus rules.
+;;; prometheus-v1-rules-mode.el --- Major mode for Prometheus rules.
 
-;; Copyright (C) 2016 Marc-André Goyette
+;; Copyright (C) 2016-2018 Marc-André Goyette
 ;; Author: Marc-André Goyette <goyette.marcandre@gmail.com>
-;; URL: https://github.com/magoyette/prometheus-rules-mode
+;; URL: https://github.com/magoyette/prometheus-v1-rules-mode
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "25"))
-;; Keywords: prometheus
+;; Keywords: languages
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -22,20 +22,23 @@
 
 ;;; Commentary:
 
-;; prometheus-rules-mode is a major mode for Prometheus rules
+;; prometheus-v1-rules-mode is a major mode for Prometheus v1 rules
 ;; (https://prometheus.io/).
+
+;; Prometheus v2 rules have been changed to YAML, so this package is
+;; only useful with Prometheus v1 rules.
 
 ;; The prometheus-rules-mode package needs to be required.
 
-;;    (require 'prometheus-rules-mode)
+;;    (require 'prometheus-v1-rules-mode)
 
-;; If you only use .rules files for Prometheus, prometheus-rules-mode can be
+;; If you only use .rules files for Prometheus, prometheus-v1-rules-mode can be
 ;; activated for these files.
 
-;;    (add-to-list 'auto-mode-alist '("\\.rules$" . prometheus-rules-mode))
+;;    (add-to-list 'auto-mode-alist '("\\.rules$" . prometheus-v1-rules-mode))
 
-;; Basic code completion is available with company for the Prometheus query
-;; language operators and functions.
+;; Basic code completion is available with `completion-at-point`.
+;; Completion works with Company through the CAPF back-end.
 
 ;; Syntax checking with promtool
 ;; (https://github.com/prometheus/prometheus/tree/master/cmd/promtool)
@@ -55,10 +58,8 @@
 ;;; Code:
 
 (require 'flycheck)
-(require 'company)
-(require 'cl-lib)
 
-(defconst prometheus-rules-mode--syntax-table
+(defconst prometheus-v1-rules-mode--syntax-table
   (let ((table (make-syntax-table)))
 
     ;; Punctuation characters for comparison binary operators
@@ -95,14 +96,14 @@
 
     table))
 
-;; Operators: https://prometheus.io/docs/querying/operators/
-;; Functions: https://prometheus.io/docs/querying/functions/
-(defconst prometheus-rules-mode--keywords
+;; Operators: https://prometheus.io/docs/prometheus/1.8/querying/operators/
+;; Functions: https://prometheus.io/docs/prometheus/1.8/querying/functions/
+(defconst prometheus-v1-rules-mode--keywords
   '("abs"
     "absent"
-    "alert"
+    "ALERT"
     "and"
-    "annotations"
+    "ANNOTATIONS"
     "avg"
     "avg_over_time"
     "bottomk"
@@ -123,21 +124,21 @@
     "drop_common_labels"
     "exp"
     "floor"
-    "for"
+    "FOR"
     "group_left"
     "group_right"
     "histogram_quantile"
     "holt_winters"
     "hour"
     "idelta"
-    "if"
+    "IF"
     "ignoring"
     "increase"
     "irate"
     "for"
     "keep_common"
     "label_replace"
-    "labels"
+    "LABELS"
     "ln"
     "log2"
     "log10"
@@ -172,38 +173,39 @@
     "without"
     "year"))
 
-(defvar prometheus-rules-mode--font-lock-keywords
+(defun prometheus-v1-rules-modee--completion-at-point ()
+  "Completion function for Open API 2 files."
+  (let ((bounds (bounds-of-thing-at-point 'word)))
+    (when bounds
+      (list (car bounds)
+            (cdr bounds)
+            prometheus-v1-rules-mode--keywords))))
+
+(defvar prometheus-v1-rules-mode--font-lock-keywords
   `((,(regexp-opt
-       prometheus-rules-mode--keywords
+       prometheus-v1-rules-mode--keywords
        'symbols)
      . font-lock-keyword-face)))
 
-(defun prometheus-rules-company-backend (command &optional arg &rest ignored)
-  (interactive (list 'interactive))
-
-  (cl-case command
-    (interactive (company-begin-backend 'prometheus-rules-company-backend))
-    (prefix (and (eq major-mode 'prometheus-rules-mode)
-                 (company-grab-symbol)))
-    (candidates
-     (cl-remove-if-not
-      (lambda (c) (string-prefix-p arg c))
-      prometheus-rules-mode--keywords))))
-
-(add-to-list 'company-backends 'prometheus-rules-company-backend)
-
-(defalias 'prometheus-rules-parent-mode
+(defalias 'prometheus-v1-rules-parent-mode
   (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
 
 ;;;###autoload
-(define-derived-mode prometheus-rules-mode
-  prometheus-rules-parent-mode "Prometheus-Rules"
-  (set-syntax-table prometheus-rules-mode--syntax-table)
+(define-derived-mode prometheus-v1-rules-mode
+  prometheus-v1-rules-parent-mode "Prometheus-Rules"
+
+  (set-syntax-table prometheus-v1-rules-mode--syntax-table)
+
   (set (make-local-variable 'font-lock-defaults)
-       '(prometheus-rules-mode--font-lock-keywords nil t)))
+       '(prometheus-v1-rules-mode--font-lock-keywords nil t))
+
+  (setq-local completion-ignore-case t)
+
+  (add-to-list 'completion-at-point-functions
+               'prometheus-v1-rules-modee--completion-at-point))
 
 ;;;###autoload
-(flycheck-define-checker promtool-rules
+(flycheck-define-checker prometheus-v1-promtool-rules
   "A prometheus rules checker using promtool.
 See URL `https://github.com/prometheus/prometheus/tree/master/cmd/promtool'."
   :command ("promtool" "check-rules" (eval (expand-file-name (buffer-file-name))))
@@ -213,9 +215,9 @@ See URL `https://github.com/prometheus/prometheus/tree/master/cmd/promtool'."
           (zero-or-more not-newline) "FAILED:" (zero-or-more not-newline)
           " at line " line
           ", char " column ":" (message)))
-  :modes prometheus-rules-mode)
+  :modes prometheus-v1-rules-mode)
 
-(add-to-list 'flycheck-checkers 'promtool-rules)
+(add-to-list 'flycheck-checkers 'prometheus-v1-promtool-rules)
 
-(provide 'prometheus-rules-mode)
-;;; prometheus-rules-mode.el ends here
+(provide 'prometheus-v1-rules-mode)
+;;; prometheus-v1-rules-mode.el ends here

@@ -1,29 +1,28 @@
-# prometheus-rules-mode
+# prometheus-v1-rules-mode
 
-prometheus-rules-mode is an Emacs major mode for [Prometheus](https://prometheus.io/) rules.
+prometheus-v1-rules-mode is an Emacs major mode for [Prometheus](https://prometheus.io/) v1 rules.
 
-This mode has been archived, since
-[Prometheus 2.0 rules have been changed to YAML](https://prometheus.io/docs/prometheus/latest/migration/#recording-rules-and-alerts).
+[Prometheus 2.0 rules have been changed to YAML](https://prometheus.io/docs/prometheus/latest/migration/#recording-rules-and-alerts), so this package is only useful with Prometheus v1 rules.
 
-The development of prometheus-rules-mode has been interrupted and the mode might no longer be stable.
+## Features
+
+- Syntax highlight
+- Basic completion with `completion-at-point`. Works with [Company](http://company-mode.github.io/) through the CAPF back-end.
+- Syntax checking with [promtool](https://github.com/prometheus/prometheus/tree/master/cmd/promtool) will be activated as a [Flycheck](http://www.flycheck.org) checker if promtool is found by Emacs.
 
 ## Configuration
 
-The prometheus-rules-mode package needs to be required.
+The prometheus-v1-rules-mode package needs to be required.
 
 ```elisp
-(require 'prometheus-rules-mode)
+(require 'prometheus-v1-rules-mode)
 ```
 
-If you only use .rules files for Prometheus, prometheus-rules-mode can be activated for these files.
+If you only use .rules files for Prometheus, prometheus-v1-rules-mode can be activated for these files.
 
 ```elisp
-(add-to-list 'auto-mode-alist '("\\.rules$" . prometheus-rules-mode))
+(add-to-list 'auto-mode-alist '("\\.rules$" . prometheus-v1-rules-mode))
 ```
-
-Basic code completion is available with [company](http://company-mode.github.io/) for the Prometheus query language operators and functions.
-
-Syntax checking with [promtool](https://github.com/prometheus/prometheus/tree/master/cmd/promtool) will be activated as a [Flycheck](http://www.flycheck.org) checker if promtool is found by Emacs.
 
 promtool needs to be installed first.
 
