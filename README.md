@@ -2,6 +2,8 @@
 
 prometheus-v1-rules-mode is an Emacs major mode for [Prometheus](https://prometheus.io/) v1 rules.
 
+This project is archived and will no longer be maintained. Prometheus 2.0 was released at the end of 2017 and changed the format of the rules to YAML.
+
 [Prometheus 2.0 rules have been changed to YAML](https://prometheus.io/docs/prometheus/latest/migration/#recording-rules-and-alerts), so this package is only useful with Prometheus v1 rules.
 
 ## Features
